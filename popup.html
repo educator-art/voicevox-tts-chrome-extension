@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VOICEVOX TTS 設定</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --accent: #6ee7f7;
+      --accent2: #a78bfa;
+      --text: #e8eaf0;
+      --text-dim: #7a7f99;
+      --success: #4ade80;
+      --error: #f87171;
+      --warning: #fbbf24;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      width: 340px;
+      min-height: 480px;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* ヘッダー */
+    .header {
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+      border-bottom: 1px solid rgba(110, 231, 247, 0.15);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .header-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 1px;
+    }
+
+    /* ステータスバー */
+    .status-bar {
+      background: var(--surface);
+      margin: 12px 16px;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--error);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .status-dot.connected { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .status-dot.checking { background: var(--warning); animation: pulse 1s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .status-text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .status-text span.error {
+      color: var(--error);
+      font-weight: 500;
+    }
+
+    /* コンテンツ */
+    .content {
+      padding: 0 16px 16px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin: 16px 0 8px;
+    }
+
+    /* スライダー系 */
+    .control-row {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .control-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .control-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--surface2);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(110,231,247,0.5);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* キャラクター選択 */
+    .select-wrap {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    select {
+      width: 100%;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      margin-top: 8px;
+      -webkit-appearance: none;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    /* テストエリア */
+    .test-area {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      height: 60px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* ボタン */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 9px 12px;
+      border: none;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #38bdf8);
+      color: #0f1117;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(110,231,247,0.35);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-stop {
+      background: var(--surface2);
+      color: var(--text-dim);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-stop:hover {
+      color: var(--error);
+      border-color: var(--error);
+    }
+
+    /* 使い方 */
+    .usage-box {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      border: 1px solid rgba(110, 231, 247, 0.12);
+    }
+
+    .usage-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .usage-item:last-child { margin-bottom: 0; }
+
+    .usage-key {
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* トースト */
+    #popup-toast {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface2);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 11px;
+      border: 1px solid rgba(255,255,255,0.1);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 999;
+    }
+
+    #popup-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🔊</div>
+  <div>
+    <div class="header-title">VOICEVOX TTS</div>
+    <div class="header-sub">テキスト読み上げ拡張機能</div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="status-dot checking" id="statusDot"></div>
+  <div class="status-text" id="statusText"><span id="statusLabel">VOICEVOXに接続確認中...</span><span id="statusVersion"></span></div>
+</div>
+
+<div class="content">
+
+  <!-- キャラクター選択 -->
+  <div class="section-title">キャラクター設定</div>
+  <div class="select-wrap">
+    <div class="control-name">話者キャラクター</div>
+    <select id="speakerSelect">
+      <option value="0">四国めたん（あまあま）</option>
+      <option value="2">四国めたん（ノーマル）</option>
+      <option value="4">四国めたん（セクシー）</option>
+      <option value="6">四国めたん（ツンツン）</option>
+      <option value="1" selected>ずんだもん（あまあま）</option>
+      <option value="3">ずんだもん（ノーマル）</option>
+      <option value="5">ずんだもん（セクシー）</option>
+      <option value="7">ずんだもん（ツンツン）</option>
+      <option value="8">春日部つむぎ（ノーマル）</option>
+      <option value="9">雨晴はう（ノーマル）</option>
+      <option value="10">波音リツ（ノーマル）</option>
+      <option value="11">玄野武宏（ノーマル）</option>
+      <option value="12">白上虎太郎（ノーマル）</option>
+      <option value="13">青山龍星（ノーマル）</option>
+      <option value="14">冥鳴ひまり（ノーマル）</option>
+      <option value="16">もち子さん（ノーマル）</option>
+    </select>
+  </div>
+
+  <!-- 音声設定 -->
+  <div class="section-title">音声パラメーター</div>
+
+  <div class="control-row">
+    <div class="control-label">
+      <span class="control-name">⚡ 話速</span>
+      <span class="control-value" id="speedVal">1.0</span>
+    </div>
+    <input type="range" id="speed" min="0.5" max="2.0" step="0.1" value="1.0" />
+  </div>
+
+  <div class="control-row">
+    <div class="control-label">
+      <span class="control-name">🎵 ピッチ</span>
+      <span class="control-value" id="pitchVal">0.0</span>
+    </div>
+    <input type="range" id="pitch" min="-0.15" max="0.15" step="0.01" value="0.0" />
+  </div>
+
+  <div class="control-row">
+    <div class="control-label">
+      <span class="control-name">🔈 音量</span>
+      <span class="control-value" id="volumeVal">1.0</span>
+    </div>
+    <input type="range" id="volume" min="0.1" max="2.0" step="0.1" value="1.0" />
+  </div>
+
+  <!-- テスト読み上げ -->
+  <div class="section-title">テスト読み上げ</div>
+  <div class="test-area">
+    <div class="control-name">読み上げるテキスト</div>
+    <textarea id="testText" placeholder="ここにテキストを入力してテスト読み上げ...">こんにちは！VOICEVOXで読み上げています。</textarea>
+    <div class="btn-row">
+      <button class="btn-primary" id="speakBtn">▶ 読み上げ</button>
+      <button class="btn-stop" id="stopBtn">⏹ 停止</button>
+    </div>
+  </div>
+
+  <!-- 使い方 -->
+  <div class="section-title">使い方</div>
+  <div class="usage-box">
+    <div class="usage-item">
+      <span class="usage-key">右クリック</span>
+      <span>テキストを選択 → 右クリック → 「VOICEVOXで読み上げる」</span>
+    </div>
+  </div>
+
+</div>
+
+<div id="popup-toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
